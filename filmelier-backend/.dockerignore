@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Ambiente
+.env
+.env.*
+.editorconfig
+
+# Dependências locais (serão instaladas no container)
+vendor
+node_modules
+
+# Cache e arquivos gerados
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+bootstrap/cache
+
+# Testes
+tests
+
+# Front-end build (se existir)
+public/build
+public/hot
+
+# Docs e extras
+README.md

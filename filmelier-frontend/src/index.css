@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* 2. Configuração do Design System (Filmelier) */
+@theme {
+  /* Fontes Personalizadas */
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  /* --- PALETA DE CORES (Baseada no ID Filmelier.txt) --- */
+  
+  /* Tons de Cinza (Fundo e Superfícies) */
+  --color-gray-900: #0C0C0C; /* Fundo Principal */
+  --color-gray-850: #141414; /* Cards e Painéis */
+  --color-gray-800: #1D1D1D; /* Modais */
+  --color-gray-700: #2A2A2A; /* Bordas */
+
+  /* Cores de Texto */
+  --color-text-primary: #E6E6E6;
+  --color-text-secondary: #A1A1A1;
+  --color-placeholder: #6E6E6E;
+
+  /* Primária (Gold Premium) */
+  --color-primary-500: #E2B552; /* Cor Principal */
+  --color-primary-600: #C49947; /* Hover */
+  
+  /* Secundária (Bronze - Opcional, estava no TXT) */
+  --color-secondary-500: #A67B3F;
+}
+
+/* 3. Camada Base (Reset e Estilos Globais) */
+@layer base {
+  /* Importando as fontes do Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@500;600;700&display=swap');
+
+  /* Aplicando ao corpo do site */
+  body {
+    background-color: var(--color-gray-900);
+    color: var(--color-text-primary);
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased; /* Deixa a fonte mais nítida */
+  }
+
+  /* Aplicando a fonte Montserrat para todos os títulos */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-montserrat);
+  }
+}
