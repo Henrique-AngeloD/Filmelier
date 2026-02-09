@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 use App\Models\Movie;
@@ -22,53 +21,58 @@ class MovieSeeder extends Seeder
             return;
         }
 
-        // 2. Loop para baixar várias páginas (Aqui baixamos 5 páginas = 100 filmes)
-        // Se quiser mais filmes para testar melhor a recomendação, mude o 5 para 10 ou 20.
-        for ($i = 1; $i <= 5; $i++) {
+        // 500 páginas é bastante coisa! (10.000 filmes). 
+        // Se der erro de tempo de execução, você pode diminuir ou rodar em blocos.
+        $totalPages = 500; 
 
-            $this->command->info("Baixando filmes populares - Página $i...");
+        $this->command->info("Iniciando a importação de $totalPages páginas...");
 
-            // Faz a requisição para a API do TMDb
+        for ($i = 1; $i <= $totalPages; $i++) {
+
+            $this->command->info("Baixando Página $i...");
+
             $response = Http::get("https://api.themoviedb.org/3/movie/popular", [
                 'api_key' => $apiKey,
-                'language' => 'pt-BR', // Importante: Traz títulos e sinopses em Português
+                'language' => 'pt-BR',
                 'page' => $i
             ]);
 
             if ($response->successful()) {
-                $movies = $response->json()['results'];
+                $moviesData = $response->json()['results'];
 
-                foreach ($movies as $movieData) {
-                    // O updateOrCreate evita duplicatas: se o ID do TMDb já existir, ele só atualiza.
-                    $movie = Movie::updateOrCreate(
-                        ['tmdb_id' => $movieData['id']], // Chave de busca
-                        [
-                            'title' => $movieData['title'],
-                            'overview' => $movieData['overview'] ?? '', // Se vier vazio, salva string vazia
-                            'poster_path' => $movieData['poster_path'],
-                            'release_date' => $movieData['release_date'] ?? null,
-                            'vote_average' => $movieData['vote_average'] ?? 0,
-                        ]
-                    );
+                foreach ($moviesData as $data) {
+                    
+                    // TRATAMENTO DA DATA: Se estiver vazia ou não existir, vira NULL
+                    $releaseDate = !empty($data['release_date']) ? $data['release_date'] : null;
 
-                    // Lógica de Gêneros
-                    if (isset($movieData['genre_ids']) && is_array($movieData['genre_ids'])) {
+                    try {
+                        $movie = Movie::updateOrCreate(
+                            ['tmdb_id' => $data['id']],
+                            [
+                                'title'         => $data['title'],
+                                'overview'      => $data['overview'] ?? '',
+                                'poster_path'   => $data['poster_path'] ?? null,
+                                'release_date'  => $releaseDate, // Agora garantido como data ou null
+                                'vote_average'  => $data['vote_average'] ?? 0,
+                            ]
+                        );
 
-                        // Quais são os IDs internos desses gêneros.
-                        // Ex: "Quem é o tmdb_id 28?" -> O banco responde: "É o ID 1 (Ação)"
-                        $localGenreIds = Genre::whereIn('tmdb_id', $movieData['genre_ids'])
-                            ->pluck('id');
-
-                        // Criar o vínculo na tabela pivô 'genre_movie'
-                        // O syncWithoutDetaching garante que não vamos apagar vínculos se rodarmos o seed de novo.
-                        $movie->genres()->syncWithoutDetaching($localGenreIds);
+                        if (isset($data['genre_ids']) && is_array($data['genre_ids'])) {
+                            $localGenreIds = Genre::whereIn('tmdb_id', $data['genre_ids'])
+                                ->pluck('id');
+                            $movie->genres()->syncWithoutDetaching($localGenreIds);
+                        }
+                    } catch (\Exception $e) {
+                        $this->command->warn("Erro ao salvar filme {$data['title']}: " . $e->getMessage());
+                        continue;
                     }
                 }
             } else {
-                $this->command->error("Erro ao baixar página $i. Código: " . $response->status());
+                $this->command->error("Erro na página $i. Status: " . $response->status());
+                sleep(1); 
             }
         }
 
-        $this->command->info('Processo finalizado! Filmes e gêneros vinculados.');
+        $this->command->info('Processo finalizado!');
     }
 }

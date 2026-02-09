@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('movie_id')->constrained()->cascadeOnDelete();
-            $table->text('comment')->nullable(); // O comentário do usuário
+            $table->text('comment')->nullable();
+            $table->integer('rating')->nullable();
             $table->boolean('watched')->default(true);
-            $table->unique(['user_id', 'movie_id']); // Evita duplicatas
+            $table->unique(['user_id', 'movie_id']);
             $table->timestamps();
         });
     }

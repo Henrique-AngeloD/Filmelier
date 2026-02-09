@@ -6,8 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // <--- Importante para Login
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <--- Importante para o relacionamento
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -26,8 +26,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
      * @var list<string>
      */
     protected $hidden = [
@@ -36,8 +34,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -48,16 +44,10 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * -------------------------------------------------------------
-     * RELACIONAMENTOS (Aqui está a correção do seu erro)
-     * -------------------------------------------------------------
-     * Esta função ensina ao Laravel que o User tem uma biblioteca de filmes.
-     */
     public function libraryMovies(): BelongsToMany
     {
         return $this->belongsToMany(Movie::class, 'user_movie_library')
-                    ->withPivot('comment', 'watched')
+                    ->withPivot('comment', 'watched', 'rating')
                     ->withTimestamps();
     }
 }

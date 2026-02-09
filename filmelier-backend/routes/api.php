@@ -15,16 +15,10 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
-
-    // Busca de Filmes (Proxy TMDb)
-    // Lembre-se de ter criado o MovieController com o método search
     Route::get('/search', [MovieController::class, 'search']);
-    // Biblioteca
     Route::get('/library', [LibraryController::class, 'index']);
     Route::post('/library', [LibraryController::class, 'store']);
     Route::put('/library/{movie}', [LibraryController::class, 'update']);
     Route::delete('/library/{movie}', [LibraryController::class, 'destroy']);
-
-    // Recomendação
     Route::post('/recommend', [RecommendationController::class, 'generate']);
 });

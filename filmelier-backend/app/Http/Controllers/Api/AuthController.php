@@ -10,9 +10,6 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    /**
-     * Registra um novo usuário.
-     */
     public function register(Request $request)
     {
         $request->validate([
@@ -27,7 +24,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Cria o token de acesso para o React usar nas próximas requisições
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -37,9 +33,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Realiza o login do usuário.
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -64,9 +57,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Realiza o logout (revoga o token).
-     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -74,9 +64,6 @@ class AuthController extends Controller
         return response()->json(['message' => 'Sessão encerrada com sucesso']);
     }
 
-    /**
-     * Retorna os dados do usuário autenticado.
-     */
     public function user(Request $request)
     {
         return response()->json($request->user());

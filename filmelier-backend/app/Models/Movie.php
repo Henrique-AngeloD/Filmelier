@@ -16,13 +16,11 @@ class Movie extends Model
         'vote_average'
     ];
 
-    // Relacionamento com Gêneros (Muitos para Muitos)
     public function genres(): BelongsToMany
     {
         return $this->belongsToMany(Genre::class, 'genre_movie');
     }
     
-    // Relacionamento com Usuários (Biblioteca)
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_movie_library')

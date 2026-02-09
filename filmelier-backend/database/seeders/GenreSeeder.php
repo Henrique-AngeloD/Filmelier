@@ -27,8 +27,8 @@ class GenreSeeder extends Seeder
 
             foreach ($genres as $genreData) {
                 Genre::updateOrCreate(
-                    ['tmdb_id' => $genreData['id']], // Procura por este ID
-                    ['name' => $genreData['name']]   // Salva o nome (ex: Ação)
+                    ['tmdb_id' => $genreData['id']],
+                    ['name' => $genreData['name']]
                 );
             }
             $this->command->info('Gêneros populados com sucesso!');
