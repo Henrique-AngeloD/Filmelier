@@ -19,11 +19,9 @@
 
     * Uma página de "Biblioteca" pessoal, onde o usuário pode ver os filmes que já assistiu, adicionar e editar comentários.
 
-    * Uma interface principal onde o usuário pode buscar filmes  usar como base de recomendação.
+    * Uma área para exibir os 3 filmes selecionados pelo usuário para recomendação.
 
     * Exibição dos resultados da busca.
-
-    * Uma área para exibir os 3 filmes selecionados pelo usuário para recomendação.
 
     * Uma página ou seção para exibir a lista de filmes recomendados (já filtrada).
 2. Backend:
@@ -51,7 +49,7 @@
 ### 2. Funcionalidades previstas e não implementadas
 <!-- Descrever as funcionalidades que eram previstas e não foram implementas, apresentando uma breve justificativa do porquê elas não foram incluídas -->
 
-Todas as funcionalidades planejadas no escopo inicial foram entregues e otimizadas durante o desenvolvimento.
+Todas as funcionalidades planejadas no escopo inicial foram entregues durante o desenvolvimento.
 
 
 ### 3. Outras funcionalidades implementadas
@@ -76,7 +74,7 @@ Todas as funcionalidades planejadas no escopo inicial foram entregues e otimizad
 - Clone o repositório `git clone https://github.com/henriqueangelo/filmelier.git`
 - Entre na pasta do backend: `cd filmelier-backend`
 - Copie o arquivo `.env.example` e renomeie para `.env`
-- Abra o arquivo `.env` e adicione sua chave da API do tmdb aqui
+- Abra o arquivo `.env` e adicione sua chave da API do tmdb aqui, link para conseguir a chave: `https://www.themoviedb.org/settings/api`
 - Volte para a pasta raiz
 - Instale as dependências do PHP antes de subir o serviço `docker compose run --rm backend composer install`
 - Rode o comando `docker compose up --build -d` (somente na primeira vez, depois rode apenas `docker compose up -d`)
