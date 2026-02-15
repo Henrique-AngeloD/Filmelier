@@ -1,5 +1,4 @@
 services:
-  # --- SERVIÇO 1: BANCO DE DADOS ---
   postgres:
     image: postgres:15
     container_name: filmelier_db
@@ -12,7 +11,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # --- SERVIÇO 2: BACKEND (LARAVEL) ---
   backend:
     build: ./filmelier-backend
     container_name: filmelier_api
@@ -32,7 +30,6 @@ services:
     depends_on:
       - postgres
 
-  # --- SERVIÇO 3: FRONTEND (REACT) ---
   frontend:
     build: ./filmelier-frontend
     container_name: filmelier_web
@@ -44,16 +41,15 @@ services:
     depends_on:
       - backend
 
-  # --- SERVIÇO 4: PGADMIN ---
   pgadmin:
     image: dpage/pgadmin4
     container_name: filmelier-pgadmin
     restart: always
-    ports:
-      - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
     depends_on:
       - postgres
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import api from '../services/api';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
@@ -7,14 +8,13 @@ import Button from '../components/Button';
 const Home = () => {
     const navigate = useNavigate();
 
-    // Estados
     const [query, setQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedMovies, setSelectedMovies] = useState([]); 
     const [loading, setLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const { showToast } = useToast();
 
-    // --- LÓGICA DE DEBOUNCE (Busca Otimizada) ---
     useEffect(() => {
         if (query.length <= 2) {
             setSearchResults([]);
@@ -26,11 +26,10 @@ const Home = () => {
         const timeoutId = setTimeout(async () => {
             try {
                 const response = await api.get(`/search?q=${query}`);
-                // Filtra apenas filmes que têm poster para ficar bonito
                 const validMovies = response.data.filter(m => m.poster_path);
                 setSearchResults(validMovies.slice(0, 5));
             } catch (error) {
-                console.error("Erro na busca", error);
+                showToast('Erro na busca', 'error');
             } finally {
                 setIsSearching(false);
             }
@@ -39,7 +38,6 @@ const Home = () => {
         return () => clearTimeout(timeoutId);
     }, [query]);
 
-    // Adicionar filme à seleção
     const selectMovie = (movie) => {
         if (selectedMovies.length >= 3) return; 
         if (selectedMovies.find(m => m.id === movie.id)) return; 
@@ -49,34 +47,28 @@ const Home = () => {
         setSearchResults([]);
     };
 
-    // Remover filme da seleção
     const removeMovie = (movieId) => {
         setSelectedMovies(selectedMovies.filter(m => m.id !== movieId));
     };
 
-    // --- NOVA LÓGICA DE RECOMENDAÇÃO ---
     const generateRecommendations = async () => {
         if (selectedMovies.length !== 3) return;
         setLoading(true);
         
         try {
-            // 1. Extrai os IDs de género que vieram da busca do TMDb
             const allGenres = selectedMovies.flatMap(m => m.genre_ids || []);
             const uniqueGenres = [...new Set(allGenres)];
 
-            // 2. Envia para o backend processar
             const response = await api.post('/recommend', {
                 genre_ids: uniqueGenres,
                 exclude_tmdb_ids: selectedMovies.map(m => m.id),
                 titles: selectedMovies.map(m => m.title)
             });
             
-            // 3. Navega para a tela de resultados
             navigate('/recommendations', { state: { data: response.data } });
 
         } catch (error) {
-            console.error("Erro ao gerar:", error);
-            alert('Erro ao gerar recomendações. Tente novamente.');
+            showToast('Erro ao gerar recomendações, tente novamente.', 'error');
         } finally {
             setLoading(false);
         }
@@ -97,7 +89,6 @@ const Home = () => {
                     </p>
                 </div>
 
-                {/* ÁREA DE SELEÇÃO */}
                 <div className="grid grid-cols-3 gap-4 mb-12 max-w-2xl mx-auto">
                     {[0, 1, 2].map((index) => (
                         <div 
@@ -133,7 +124,6 @@ const Home = () => {
                     ))}
                 </div>
 
-                {/* BARRA DE BUSCA */}
                 <div className="relative mb-12 z-50 max-w-3xl mx-auto">
                     <div className="relative">
                         <input 
@@ -193,7 +183,6 @@ const Home = () => {
                     )}
                 </div>
 
-                {/* BOTÃO */}
                 <div className="max-w-xs mx-auto text-center">
                     <Button 
                         text="Gerar Recomendações" 

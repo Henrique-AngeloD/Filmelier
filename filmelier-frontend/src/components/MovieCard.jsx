@@ -11,7 +11,6 @@ const MovieCard = ({ movie, onClick, actionIcon = null }) => {
             onClick={() => onClick(movie)}
             className="group relative bg-gray-850 rounded-xl overflow-hidden cursor-pointer hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 border border-gray-700 hover:border-primary-500"
         >
-            {/* Poster Imagem */}
             <div className="aspect-[2/3] w-full overflow-hidden">
                 <img 
                     src={posterUrl} 
@@ -20,13 +19,11 @@ const MovieCard = ({ movie, onClick, actionIcon = null }) => {
                 />
             </div>
 
-            {/* Overlay com Título (Aparece sempre ou no hover, depende do gosto. Aqui deixei fixo embaixo) */}
             <div className="p-3">
                 <h3 className="text-text-primary font-montserrat font-bold text-sm truncate">{movie.title}</h3>
                 <p className="text-text-secondary text-xs">{year}</p>
             </div>
 
-            {/* Ícone de Ação (ex: + ou Lixeira) sobreposto na imagem */}
             {actionIcon && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {actionIcon}

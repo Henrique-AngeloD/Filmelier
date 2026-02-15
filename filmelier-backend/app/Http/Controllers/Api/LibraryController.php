@@ -30,7 +30,7 @@ class LibraryController extends Controller
             'rating'  => 'nullable|integer|min:0|max:10' // Adicionado
         ]);
 
-        $movie = Movie::where('tmdb_id', $request->tmdb_id)->first();
+        $movie = Movie::find($request->tmdb_id);
 
         if (!$movie) {
             return response()->json(['message' => 'Filme não encontrado no banco local.'], 404);

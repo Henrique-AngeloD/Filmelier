@@ -19,8 +19,7 @@ class MovieController extends Controller
 
         // Realiza a busca no banco de dados local
         // Usamos ILIKE (no Postgres) ou LIKE (no MySQL) para busca parcial e insensível a maiúsculas
-        $movies = Movie::with('genres')
-            ->where('title', 'ILIKE', "%{$query}%")
+        $movies = Movie::where('title', 'ILIKE', "%{$query}%")
             ->orderBy('vote_average', 'desc') // Mostra os melhores avaliados primeiro
             ->limit(15) // Limita a 15 resultados para ser ultra rápido
             ->get();

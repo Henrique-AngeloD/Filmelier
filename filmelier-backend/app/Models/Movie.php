@@ -7,19 +7,39 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Movie extends Model
 {
+    public $incrementing = false;
+    protected $keyType = 'int';
+
     protected $fillable = [
-        'tmdb_id',
+        'id',
         'title',
+        'genre_ids',
         'overview',
         'poster_path',
-        'release_date',
-        'vote_average'
+        'vote_average',
+        'release_date'
     ];
 
-    public function genres(): BelongsToMany
-    {
-        return $this->belongsToMany(Genre::class, 'genre_movie');
-    }
+    protected $casts = [
+        'genre_ids' => 'array',
+    ];
+
+    //protected $appends = ['genre_ids'];
+
+    // public function genres(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Genre::class, 'genre_movie');
+    // }
+
+    // public function getGenreIdsAttribute()
+    // {
+    //     // Se a relação de gêneros já estiver carregada, extraímos os IDs
+    //     if ($this->relationLoaded('genres')) {
+    //         return $this->genres->pluck('id')->toArray();
+    //     }
+        
+    //     return [];
+    // }
     
     public function users(): BelongsToMany
     {

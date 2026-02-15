@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('user_movie_library', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('movie_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('movie_id');
+            $table->foreign('movie_id')->references('id')->on('movies')->onDelete('cascade');
             $table->text('comment')->nullable();
             $table->integer('rating')->nullable();
             $table->boolean('watched')->default(true);

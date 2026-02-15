@@ -5,19 +5,16 @@ const Navbar = () => {
     const { user, logout } = useAuth();
     const location = useLocation();
 
-    // Função para verificar se o link está ativo (deixa dourado)
     const isActive = (path) => location.pathname === path;
 
     return (
         <nav className="bg-gray-900 border-b border-gray-700 py-4 px-6 mb-8">
             <div className="w-full flex justify-between items-center">
                 
-                {/* Logo / Nome do App */}
                 <Link to="/" className="text-2xl font-montserrat font-bold text-primary-500 hover:text-primary-600 transition-colors">
                     Filmelier
                 </Link>
 
-                {/* Links de Navegação */}
                 <div className="flex gap-8 items-center">
                     <Link 
                         to="/" 
@@ -34,7 +31,6 @@ const Navbar = () => {
                     </Link>
                 </div>
 
-                {/* Área do Usuário */}
                 <div className="flex items-center gap-4">
                     <span className="text-text-primary text-sm hidden md:block">
                         Olá, <span className="font-bold">{user?.name}</span>

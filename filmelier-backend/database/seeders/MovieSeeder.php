@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 use App\Models\Movie;
-use App\Models\Genre;
 
 class MovieSeeder extends Seeder
 {
@@ -21,11 +20,10 @@ class MovieSeeder extends Seeder
             return;
         }
 
-        // 500 páginas é bastante coisa! (10.000 filmes). 
-        // Se der erro de tempo de execução, você pode diminuir ou rodar em blocos.
-        $totalPages = 500; 
+        // 500 páginas = 10.000 filmes.
+        $totalPages = 500;
 
-        $this->command->info("Iniciando a importação de $totalPages páginas...");
+        $this->command->info("Iniciando a importação de $totalPages páginas diretamente para JSONB...");
 
         for ($i = 1; $i <= $totalPages; $i++) {
 
@@ -42,26 +40,22 @@ class MovieSeeder extends Seeder
 
                 foreach ($moviesData as $data) {
                     
-                    // TRATAMENTO DA DATA: Se estiver vazia ou não existir, vira NULL
                     $releaseDate = !empty($data['release_date']) ? $data['release_date'] : null;
 
                     try {
-                        $movie = Movie::updateOrCreate(
-                            ['tmdb_id' => $data['id']],
+                        // Agora usamos 'id' (TMDb) como nossa chave primária real
+                        Movie::updateOrCreate(
+                            ['id' => $data['id']], 
                             [
-                                'title'         => $data['title'],
-                                'overview'      => $data['overview'] ?? '',
-                                'poster_path'   => $data['poster_path'] ?? null,
-                                'release_date'  => $releaseDate, // Agora garantido como data ou null
-                                'vote_average'  => $data['vote_average'] ?? 0,
+                                'title'        => $data['title'],
+                                'overview'     => $data['overview'] ?? '',
+                                'poster_path'  => $data['poster_path'] ?? null,
+                                'release_date' => $releaseDate,
+                                'vote_average' => $data['vote_average'] ?? 0,
+                                // Salvamos o array de IDs puro, sem tradução!
+                                'genre_ids'    => $data['genre_ids'] ?? [], 
                             ]
                         );
-
-                        if (isset($data['genre_ids']) && is_array($data['genre_ids'])) {
-                            $localGenreIds = Genre::whereIn('tmdb_id', $data['genre_ids'])
-                                ->pluck('id');
-                            $movie->genres()->syncWithoutDetaching($localGenreIds);
-                        }
                     } catch (\Exception $e) {
                         $this->command->warn("Erro ao salvar filme {$data['title']}: " . $e->getMessage());
                         continue;
@@ -69,10 +63,11 @@ class MovieSeeder extends Seeder
                 }
             } else {
                 $this->command->error("Erro na página $i. Status: " . $response->status());
-                sleep(1); 
+                // Se bater no rate limit do TMDb, dá uma respirada
+                sleep(1);
             }
         }
 
-        $this->command->info('Processo finalizado!');
+        $this->command->info('Processo finalizado! Seu banco está sincronizado com o TMDb.');
     }
 }

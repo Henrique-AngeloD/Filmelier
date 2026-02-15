@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import Navbar from '../components/Navbar';
 import MovieCard from '../components/MovieCard';
 import Modal from '../components/Modal';
@@ -9,15 +10,13 @@ import api from '../services/api';
 const Recommendations = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     
-    // Recupera os dados enviados pela Home
     const { data } = location.state || {};
     
-    // Estado para o Modal de Detalhes
     const [selectedMovie, setSelectedMovie] = useState(null);
     const [adding, setAdding] = useState(false);
 
-    // Proteção: Se tentar acessar direto pelo link sem selecionar filmes, volta pra Home
     useEffect(() => {
         if (!data) {
             navigate('/');
@@ -28,25 +27,24 @@ const Recommendations = () => {
 
     const { based_on, recommendations } = data;
 
-    // Função para Adicionar à Biblioteca
     const addToLibrary = async () => {
         if (!selectedMovie) return;
         setAdding(true);
 
         try {
             await api.post('/library', {
-                tmdb_id: selectedMovie.tmdb_id || selectedMovie.id, // Garante o ID certo
+                tmdb_id: selectedMovie.tmdb_id || selectedMovie.id,
                 title: selectedMovie.title,
                 overview: selectedMovie.overview,
                 poster_path: selectedMovie.poster_path,
                 vote_average: selectedMovie.vote_average,
                 release_date: selectedMovie.release_date
             });
-            alert('Filme adicionado à sua biblioteca!');
-            setSelectedMovie(null); // Fecha o modal
+            setSelectedMovie(null);
+            showToast('Adicionado com sucesso!');
         } catch (error) {
             console.error(error);
-            alert('Erro ao adicionar. Talvez já esteja na biblioteca?');
+            showToast('Erro ao adicionar na biblioteca', 'error');
         } finally {
             setAdding(false);
         }
@@ -58,7 +56,6 @@ const Recommendations = () => {
 
             <div className="max-w-6xl mx-auto px-4 mt-8">
                 
-                {/* Cabeçalho */}
                 <div className="mb-10 text-center">
                     <h1 className="text-3xl font-montserrat font-bold text-primary-500 mb-2">
                         Recomendações para você
@@ -68,8 +65,7 @@ const Recommendations = () => {
                     </p>
                 </div>
 
-                {/* Grid de Resultados */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <div className="grid sm:grid-cols-3 gap-4 mb-12 max-w-2xl mx-auto">
                     {recommendations.map(movie => (
                         <MovieCard 
                             key={movie.id} 
@@ -79,7 +75,6 @@ const Recommendations = () => {
                     ))}
                 </div>
 
-                {/* Botão Voltar */}
                 <div className="mt-12 text-center">
                     <button 
                         onClick={() => navigate('/')}
@@ -89,7 +84,6 @@ const Recommendations = () => {
                     </button>
                 </div>
 
-                {/* MODAL DE DETALHES (Para adicionar à biblioteca) */}
                 <Modal 
                     isOpen={!!selectedMovie} 
                     onClose={() => setSelectedMovie(null)} 
@@ -125,6 +119,7 @@ const Recommendations = () => {
 
             </div>
         </div>
+        
     );
 };
 

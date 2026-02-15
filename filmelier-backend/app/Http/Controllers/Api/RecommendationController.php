@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
-use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,31 +11,36 @@ class RecommendationController extends Controller
 {
     public function generate(Request $request)
     {
-        $request->validate([
-            'genre_ids' => 'required|array',
-            'exclude_tmdb_ids' => 'array',
-            'titles' => 'array'
-        ]);
-
-        $user = Auth::user();
-        
-        $tmdbGenreIds = $request->genre_ids;
+        $genreIds = $request->genre_ids; // Ex: [28, 12]
         $excludeIds = $request->exclude_tmdb_ids ?? [];
 
-        $localGenreIds = Genre::whereIn('tmdb_id', $tmdbGenreIds)->pluck('id');
+        $user = Auth::user();
 
         /** @var \App\Models\User $user */
-        $watchedMovieIds = $user ? $user->libraryMovies()->pluck('movies.id') : [];
+        $watchedMovieIds = $user ? $user->libraryMovies()->pluck('movies.id')->toArray() : [];
+        $ignoreList = array_merge($excludeIds, $watchedMovieIds);
+        $genreList = implode(',', array_map('intval', $genreIds));
 
-        $recommendations = Movie::whereHas('genres', function ($query) use ($localGenreIds) {
-            $query->whereIn('genres.id', $localGenreIds);
-        })
-        ->whereNotIn('tmdb_id', $excludeIds)
-        ->whereNotIn('id', $watchedMovieIds)
-        ->with('genres')
-        ->inRandomOrder()
-        ->limit(3)
-        ->get();
+        $recommendations = Movie::select('movies.*')
+            ->selectRaw("(
+                SELECT count(*) 
+                FROM jsonb_array_elements_text(genre_ids) as elem 
+                WHERE elem::int IN ($genreList)
+            ) as relevance_score")
+            ->where(function ($query) use ($genreIds) {
+                foreach ($genreIds as $id) {
+                    $query->orWhereJsonContains('genre_ids', (int)$id);
+                }
+            })
+            ->when(!empty($ignoreList), function ($query) use ($ignoreList) {
+                return $query->whereNotIn('movies.id', $ignoreList);
+            })
+            ->where('vote_average', '>=', 6.0)
+            ->orderByDesc('relevance_score')
+            ->orderByDesc('vote_average')
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
 
         return response()->json([
             'based_on' => $request->titles ?? [],
